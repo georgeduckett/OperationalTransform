@@ -11,8 +11,8 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void OperationTransformer_TransformDeleteInsert_LocalBeforeRemote()
         {
-            var localState = new SiteState(1, "123456789");
-            var remoteState = new SiteState(1, "123456789");
+            var localState = new DocumentState(1, "123456789");
+            var remoteState = new DocumentState(1, "123456789");
 
             var localOperation = new DeleteOperation(localState, 2);
             var remoteOperation = new InsertOperation(remoteState, 4, 'a');
@@ -28,8 +28,8 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void OperationTransformer_TransformDeleteInsert_LocalAfterRemote()
         {
-            var localState = new SiteState(1, "123456789");
-            var remoteState = new SiteState(1, "123456789");
+            var localState = new DocumentState(1, "123456789");
+            var remoteState = new DocumentState(1, "123456789");
 
             var localOperation = new DeleteOperation(localState, 4);
             var remoteOperation = new InsertOperation(remoteState, 2, 'a');
@@ -46,8 +46,8 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void OperationTransformer_TransformDeleteInsert_LocalEqualToRemote()
         {
-            var localState = new SiteState(1, "123456789");
-            var remoteState = new SiteState(1, "123456789");
+            var localState = new DocumentState(1, "123456789");
+            var remoteState = new DocumentState(1, "123456789");
 
             var localOperation = new DeleteOperation(localState, 2);
             var remoteOperation = new InsertOperation(remoteState, 2, 'a');

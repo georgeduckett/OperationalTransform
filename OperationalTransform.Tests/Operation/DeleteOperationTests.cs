@@ -11,26 +11,26 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void DeleteOperation_CreateFromState_CreatesCorrectly()
         {
-            var state = new SiteState(1, "1234");
+            var state = new DocumentState(1, "1234");
             Assert.AreEqual('2', new DeleteOperation(state, 1).Text);
         }
         [TestMethod]
         public void DeleteOperation_ApplyTransform_CorrectlyDeletes()
         {
-            var state = new SiteState(1, "1234");
+            var state = new DocumentState(1, "1234");
             Assert.AreEqual("124", new DeleteOperation(state, 2).ApplyTransform(state.CurrentState));
         }
         [TestMethod]
         public void DeleteOperation_CreateInverse_CreatesInsertOperation()
         {
-            var state = new SiteState(1, "1234");
+            var state = new DocumentState(1, "1234");
             var delete = new DeleteOperation(state, 2);
             Assert.IsInstanceOfType(delete.CreateInverse(), typeof(InsertOperation));
         }
         [TestMethod]
         public void DeleteOperation_CreateInverse_InverseUndoesDelete()
         {
-            var state = new SiteState(1, "1234");
+            var state = new DocumentState(1, "1234");
             var delete = new DeleteOperation(state, 2);
             var deletedstate = delete.ApplyTransform(state.CurrentState);
             Assert.AreEqual(state.CurrentState, delete.CreateInverse().ApplyTransform(deletedstate));

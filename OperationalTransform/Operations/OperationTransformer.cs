@@ -10,6 +10,8 @@ namespace OperationalTransform.Operations
     {
         /// <summary>
         /// Implements operational transforms as per http://cooffice.ntu.edu.sg/otfaq/ 2.15
+        /// It take a remote operation, that was indented to be applied to a document that hadn't yet had the local operation
+        /// applied, and translates it to one that maintains the intent when used one a document that did have the local operation applied.
         /// </summary>
         /// <param name="remoteOperation">The remote operation we want to transform</param>
         /// <param name="localOperation">The local operation we want to transform using</param>

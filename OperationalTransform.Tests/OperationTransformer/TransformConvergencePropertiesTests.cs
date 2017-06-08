@@ -20,8 +20,8 @@ namespace OperationalTransform.Tests
         {
             var site1Str = "abcd";
             var site2Str = "abcd";
-            var site1 = new SiteState(1, site1Str);
-            var site2 = new SiteState(2, site2Str);
+            var site1 = new DocumentState(1, site1Str);
+            var site2 = new DocumentState(2, site2Str);
 
             var op1 = new InsertOperation(site1, 0, '1');
             var op2 = new InsertOperation(site2, 0, '2');
@@ -40,9 +40,9 @@ namespace OperationalTransform.Tests
             var site1Str = "abcd";
             var site2Str = "abcd";
             var site3Str = "abcd";
-            var site1 = new SiteState(1, site1Str);
-            var site2 = new SiteState(2, site2Str);
-            var site3 = new SiteState(3, site3Str);
+            var site1 = new DocumentState(1, site1Str);
+            var site2 = new DocumentState(2, site2Str);
+            var site3 = new DocumentState(3, site3Str);
 
             var op1 = new InsertOperation(site1, 0, '1');
             var op2 = new InsertOperation(site2, 1, '2');

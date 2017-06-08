@@ -11,14 +11,14 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void IdentityOperation_ApplyTransform_MaintainsState()
         {
-            var state = new SiteState(1, "123456789");
+            var state = new DocumentState(1, "123456789");
 
             Assert.AreEqual(state.CurrentState, new IdentityOperation(state).ApplyTransform(state.CurrentState));
         }
         [TestMethod]
         public void IdentityOperation_CreateInverse_InverseMaintainsState()
         {
-            var state = new SiteState(1, "123456789");
+            var state = new DocumentState(1, "123456789");
             Assert.AreEqual(state.CurrentState, new IdentityOperation(state).CreateInverse().ApplyTransform(state.CurrentState));
         }
     }

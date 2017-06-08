@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace OperationalTransform.Operations
 {
+    /// <summary>
+    /// Represents an operation to alter a document's text
+    /// </summary>
     public abstract class OperationBase
     {
         public readonly uint UserId;
@@ -21,7 +24,7 @@ namespace OperationalTransform.Operations
             Position = position;
             Text = text;
         }
-        public OperationBase(SiteState siteState, int position, char text) : this(siteState.UserId, siteState.GetNextSequenceId(), position, text) { }
+        public OperationBase(DocumentState siteState, int position, char text) : this(siteState.UserId, siteState.GetNextSequenceId(), position, text) { }
         public abstract OperationBase NewWithPosition(int newPosition);
         public int Length => 1;
         public abstract OperationBase CreateInverse();

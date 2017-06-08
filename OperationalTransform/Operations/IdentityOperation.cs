@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace OperationalTransform.Operations
 {
+    /// <summary>
+    /// Represents an operation that does not alter state
+    /// </summary>
     public class IdentityOperation : OperationBase
     {
         internal IdentityOperation(uint userId, uint sequenceId) : base(userId, sequenceId, 0, (char)0) { }
-        public IdentityOperation(SiteState siteState) : base(siteState, 0, (char)0) { }
+        public IdentityOperation(DocumentState siteState) : base(siteState, 0, (char)0) { }
         public override string ApplyTransform(string state) => state;
         public override OperationBase CreateInverse() => this;
         public override OperationBase NewWithPosition(int newPosition) => new IdentityOperation(UserId, SequenceId);
