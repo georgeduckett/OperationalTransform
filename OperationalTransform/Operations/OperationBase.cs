@@ -26,5 +26,18 @@ namespace OperationalTransform.Operations
         public int Length => 1;
         public abstract OperationBase CreateInverse();
         public abstract string ApplyTransform(string state);
+
+        public bool IdenticalOperation(OperationBase other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            if (GetType() != other.GetType())
+            {
+                return false;
+            }
+            return UserId == other.UserId && SequenceId == other.SequenceId && Position == other.Position && Text == other.Text;
+        }
     }
 }
