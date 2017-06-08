@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OperationalTransform.Operations;
+using OperationalTransform.StateManagement;
 
 namespace OperationalTransform.Tests
 {
@@ -10,28 +11,29 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void DeleteOperation_CreateFromState_CreatesCorrectly()
         {
-            var state = "1234";
-            Assert.AreEqual('2', DeleteOperation.CreateFromState(1, 1, 1, state).Text);
+            var state = new SiteState(1, "1234");
+            Assert.AreEqual('2', new DeleteOperation(state, 1).Text);
         }
         [TestMethod]
         public void DeleteOperation_ApplyTransform_CorrectlyDeletes()
         {
-            var state = "1234";
-            Assert.AreEqual("124", new DeleteOperation(1, 1, 2, '3').ApplyTransform(state));
+            var state = new SiteState(1, "1234");
+            Assert.AreEqual("124", new DeleteOperation(state, 2).ApplyTransform(state.CurrentState));
         }
         [TestMethod]
         public void DeleteOperation_CreateInverse_CreatesInsertOperation()
         {
-            var delete = new DeleteOperation(1, 1, 2, '3');
+            var state = new SiteState(1, "1234");
+            var delete = new DeleteOperation(state, 2);
             Assert.IsInstanceOfType(delete.CreateInverse(), typeof(InsertOperation));
         }
         [TestMethod]
         public void DeleteOperation_CreateInverse_InverseUndoesDelete()
         {
-            var state = "1234";
-            var delete = new DeleteOperation(1, 1, 2, '3');
-            var deletedstate = delete.ApplyTransform(state);
-            Assert.AreEqual(state, delete.CreateInverse().ApplyTransform(deletedstate));
+            var state = new SiteState(1, "1234");
+            var delete = new DeleteOperation(state, 2);
+            var deletedstate = delete.ApplyTransform(state.CurrentState);
+            Assert.AreEqual(state.CurrentState, delete.CreateInverse().ApplyTransform(deletedstate));
         }
     }
 }

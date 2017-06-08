@@ -16,21 +16,21 @@ namespace OperationalTransform.Tests
         public void SiteState_ctor_InitialStateCorrectlySet()
         {
             var state = "1234";
-            var siteState = new SiteState(state);
+            var siteState = new SiteState(1, state);
             Assert.AreEqual(state, siteState.CurrentState);
         }
         [TestMethod]
         public void SiteState_ctor_InitialStateHasNoAppliedTransforms()
         {
             var state = "1234";
-            var siteState = new SiteState(state);
+            var siteState = new SiteState(1, state);
             Assert.AreEqual(0, siteState.AppliedOperations.Count);
         }
         [TestMethod]
         public void SiteState_ApplyTransform_TransformGetsApplied()
         {
-            var siteState = new SiteState("1234");
-            var transform = new InsertOperation(1, 1, 0, 'a');
+            var siteState = new SiteState(1, "1234");
+            var transform = new InsertOperation(siteState, 0, 'a');
             siteState.ApplyTransform(new AppliedOperation(transform));
             Assert.AreEqual(siteState.AppliedOperations.SingleOrDefault().Value, transform);
             Assert.AreEqual("a1234", siteState.CurrentState);
@@ -41,10 +41,10 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void SiteState_ApplyTransform_Convergence()
         {
-            var localSiteState = new SiteState("12345");
-            var remoteSiteState = new SiteState("12345");
-            var localTransform = new AppliedOperation(new InsertOperation(1, 0, 0, 'x'), localSiteState);
-            var remoteTransform = new AppliedOperation(new InsertOperation(2, 0, 2, 'Y'), remoteSiteState);
+            var localSiteState = new SiteState(1, "12345");
+            var remoteSiteState = new SiteState(2, "12345");
+            var localTransform = new AppliedOperation(new InsertOperation(localSiteState, 0, 'x'), localSiteState);
+            var remoteTransform = new AppliedOperation(new InsertOperation(remoteSiteState, 2, 'Y'), remoteSiteState);
 
             localSiteState.ApplyTransform(localTransform);
             localSiteState.ApplyTransform(remoteTransform);
@@ -60,14 +60,12 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void SiteState_ApplyTransform_IntentionPreservation()
         {
-            var localSiteState = new SiteState("ABCDE");
-            var remoteSiteState = new SiteState("ABCDE");
-            var LocalUser = 1U;
-            var RemoteUser = 2U;
-            var localTransform = new AppliedOperation(new InsertOperation(LocalUser, 0, 1, '1'), localSiteState);
-            var localTransform2 = new AppliedOperation(new InsertOperation(LocalUser, 1, 2, '2'), localTransform.Operation.Id);
-            var remoteTransform = new AppliedOperation(DeleteOperation.CreateFromState(RemoteUser, 0, 2, remoteSiteState.CurrentState), remoteSiteState);
-            var remoteTransform2 = new AppliedOperation(DeleteOperation.CreateFromState(RemoteUser, 1, 2, remoteSiteState.CurrentState), remoteTransform.Operation.Id);
+            var localSiteState = new SiteState(1, "ABCDE");
+            var remoteSiteState = new SiteState(2, "ABCDE");
+            var localTransform = new AppliedOperation(new InsertOperation(localSiteState, 1, '1'), localSiteState);
+            var localTransform2 = new AppliedOperation(new InsertOperation(localSiteState, 2, '2'), new[] { localTransform.Operation.Id });
+            var remoteTransform = new AppliedOperation(new DeleteOperation(remoteSiteState, 2), remoteSiteState);
+            var remoteTransform2 = new AppliedOperation(new DeleteOperation(remoteSiteState, 2), new[] { remoteTransform.Operation.Id });
 
             localSiteState.ApplyTransform(localTransform);
             localSiteState.ApplyTransform(localTransform2);

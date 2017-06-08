@@ -15,10 +15,19 @@ namespace OperationalTransform.StateManagement
         private Dictionary<ulong, OperationBase> _AppliedOperations = new Dictionary<ulong, OperationBase>();
         public IReadOnlyDictionary<ulong, OperationBase> AppliedOperations => _AppliedOperations;
         public string CurrentState { get; private set; }
-        public SiteState(string initialState)
+        public readonly uint UserId;
+        public uint _NextSequenceId = 0;
+        public SiteState(uint userId, string initialState)
         {
+            UserId = userId;
             CurrentState = initialState;
         }
+
+        public uint GetNextSequenceId()
+        {
+            return _NextSequenceId++;
+        }
+
         /// <summary>
         /// Applies an operation based on another site state (defined by a list of applied operation ids)
         /// </summary>

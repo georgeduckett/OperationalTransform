@@ -16,12 +16,12 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void OperationTransformer_Transform_CP1TP1Satisfied()
         {
-
+            Assert.Inconclusive("Not yet checked");
         }
         [TestMethod]
         public void OperationTransformer_Transform_CP2TP2Satisfied()
         {
-
+            Assert.Inconclusive("Not yet checked");
         }
     }
 }

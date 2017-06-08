@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OperationalTransform.Operations;
+using OperationalTransform.StateManagement;
 
 namespace OperationalTransform.Tests
 {
@@ -10,15 +11,15 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void IdentityOperation_ApplyTransform_MaintainsState()
         {
-            var state = "1234";
+            var state = new SiteState(1, "123456789");
 
-            Assert.AreEqual(state, new IdentityOperation(1, 1).ApplyTransform(state));
+            Assert.AreEqual(state.CurrentState, new IdentityOperation(state).ApplyTransform(state.CurrentState));
         }
         [TestMethod]
         public void IdentityOperation_CreateInverse_InverseMaintainsState()
         {
-            var state = "1234";
-            Assert.AreEqual(state, new IdentityOperation(1, 1).CreateInverse().ApplyTransform(state));
+            var state = new SiteState(1, "123456789");
+            Assert.AreEqual(state.CurrentState, new IdentityOperation(state).CreateInverse().ApplyTransform(state.CurrentState));
         }
     }
 }

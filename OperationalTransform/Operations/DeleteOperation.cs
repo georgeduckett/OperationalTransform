@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OperationalTransform.StateManagement;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,8 @@ namespace OperationalTransform.Operations
 {
     public class DeleteOperation : OperationBase
     {
-        public static DeleteOperation CreateFromState(uint userId, uint sequenceId, int position, string state)
-        {
-            return new DeleteOperation(userId, sequenceId, position, state[position]);
-        }
-        public DeleteOperation(uint userId, uint sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
+        internal DeleteOperation(uint userId, uint sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
+        public DeleteOperation(SiteState siteState, int position) : base(siteState, position, siteState.CurrentState[position]) { }
         public override OperationBase CreateInverse()
         {
             return new InsertOperation(UserId, SequenceId, Position, Text);

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OperationalTransform.Operations;
+using OperationalTransform.StateManagement;
 
 namespace OperationalTransform.Tests
 {
@@ -10,47 +11,55 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void OperationTransformer_TransformDeleteInsert_LocalBeforeRemote()
         {
-            var state = "123456789";
+            var localState = new SiteState(1, "123456789");
+            var remoteState = new SiteState(1, "123456789");
 
-            var localOperation = DeleteOperation.CreateFromState(1, 1, 2, state);
-            var remoteOperation = new InsertOperation(2, 2, 4, 'a');
+            var localOperation = new DeleteOperation(localState, 2);
+            var remoteOperation = new InsertOperation(remoteState, 4, 'a');
 
             var transformed = OperationTransformer.Transform(remoteOperation, localOperation);
 
-            state = localOperation.ApplyTransform(state);
-            state = transformed.ApplyTransform(state);
+            var stateStr = localState.CurrentState;
+            stateStr = localOperation.ApplyTransform(stateStr);
+            stateStr = transformed.ApplyTransform(stateStr);
 
-            Assert.AreEqual("124a56789", state);
+            Assert.AreEqual("124a56789", stateStr);
         }
         [TestMethod]
         public void OperationTransformer_TransformDeleteInsert_LocalAfterRemote()
         {
-            var state = "123456789";
+            var localState = new SiteState(1, "123456789");
+            var remoteState = new SiteState(1, "123456789");
 
-            var localOperation = DeleteOperation.CreateFromState(1, 1, 4, state);
-            var remoteOperation = new InsertOperation(2, 2, 2, 'a');
+            var localOperation = new DeleteOperation(localState, 4);
+            var remoteOperation = new InsertOperation(remoteState, 2, 'a');
 
             var transformed = OperationTransformer.Transform(remoteOperation, localOperation);
 
-            state = localOperation.ApplyTransform(state);
-            state = transformed.ApplyTransform(state);
+            var stateStr = localState.CurrentState;
+            stateStr = localOperation.ApplyTransform(stateStr);
+            stateStr = transformed.ApplyTransform(stateStr);
 
-            Assert.AreEqual("12a346789", state);
+
+            Assert.AreEqual("12a346789", stateStr);
         }
         [TestMethod]
         public void OperationTransformer_TransformDeleteInsert_LocalEqualToRemote()
         {
-            var state = "123456789";
+            var localState = new SiteState(1, "123456789");
+            var remoteState = new SiteState(1, "123456789");
 
-            var localOperation = DeleteOperation.CreateFromState(1, 1, 2, state);
-            var remoteOperation = new InsertOperation(2, 2, 2, 'a');
+            var localOperation = new DeleteOperation(localState, 2);
+            var remoteOperation = new InsertOperation(remoteState, 2, 'a');
 
             var transformed = OperationTransformer.Transform(remoteOperation, localOperation);
 
-            state = localOperation.ApplyTransform(state);
-            state = transformed.ApplyTransform(state);
+            var stateStr = localState.CurrentState;
+            stateStr = localOperation.ApplyTransform(stateStr);
+            stateStr = transformed.ApplyTransform(stateStr);
 
-            Assert.AreEqual("12a456789", state);
+
+            Assert.AreEqual("12a456789", stateStr);
         }
     }
 }

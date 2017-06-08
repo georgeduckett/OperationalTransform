@@ -18,6 +18,5 @@ namespace OperationalTransform.Operations
         public AppliedOperation(OperationBase operation) => Operation = operation;
         public AppliedOperation(OperationBase operation, IReadOnlyCollection<ulong> stateTransformIds): this(operation) => StateTransformIds = stateTransformIds;
         public AppliedOperation(OperationBase operation, SiteState siteState) : this(operation, (IReadOnlyCollection<ulong>)siteState.AppliedOperations.Keys) { }
-        public AppliedOperation(OperationBase operation, params ulong[] stateTransformIds) :this(operation) => StateTransformIds = stateTransformIds;
     }
 }

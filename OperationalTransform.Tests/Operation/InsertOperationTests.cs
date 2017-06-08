@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OperationalTransform.Operations;
+using OperationalTransform.StateManagement;
 
 namespace OperationalTransform.Tests
 {
@@ -10,22 +11,23 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void InsertOperation_ApplyTransform_CorrectlyInserts()
         {
-            var state = "1234";
-            Assert.AreEqual("12x34", new InsertOperation(1, 1, 2, 'x').ApplyTransform(state));
+            var state = new SiteState(1, "123456789");
+            Assert.AreEqual("12x3456789", new InsertOperation(state, 2, 'x').ApplyTransform(state.CurrentState));
         }
         [TestMethod]
         public void InsertOperation_CreateInverse_CreatesDeleteOperation()
         {
-            var insert = new InsertOperation(1, 1, 2, 'x');
+            var state = new SiteState(1, "123456789");
+            var insert = new InsertOperation(state, 2, 'x');
             Assert.IsInstanceOfType(insert.CreateInverse(), typeof(DeleteOperation));
         }
         [TestMethod]
         public void InsertOperation_CreateInverse_InverseUndoesInsert()
         {
-            var state = "1234";
-            var insert = new InsertOperation(1, 1, 2, 'x');
-            var insertedstate = insert.ApplyTransform(state);
-            Assert.AreEqual(state, insert.CreateInverse().ApplyTransform(insertedstate));
+            var state = new SiteState(1, "123456789");
+            var insert = new InsertOperation(state, 2, 'x');
+            var insertedstate = insert.ApplyTransform(state.CurrentState);
+            Assert.AreEqual(state.CurrentState, insert.CreateInverse().ApplyTransform(insertedstate));
         }
     }
 }
