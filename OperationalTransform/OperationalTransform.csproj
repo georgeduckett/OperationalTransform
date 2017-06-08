@@ -46,6 +46,7 @@
     <Compile Include="Operations\OperationBase.cs" />
     <Compile Include="Operations\OperationTransformer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StateManagement\State.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

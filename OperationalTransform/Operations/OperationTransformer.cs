@@ -35,9 +35,8 @@ namespace OperationalTransform.Operations
                 default: throw new InvalidOperationException();
             }
         }
-        private InsertOperation TransformInsertInsert(InsertOperation remoteInsert, InsertOperation localInsert)
+        private OperationBase TransformInsertInsert(InsertOperation remoteInsert, InsertOperation localInsert)
         {
-            // TODO: Assert that the state versions that these both are based on is valid (remote is after local)
             if(remoteInsert.Position < localInsert.Position ||
                 (remoteInsert.Position == localInsert.Position && remoteInsert.UserId > localInsert.UserId))
             {
@@ -45,7 +44,7 @@ namespace OperationalTransform.Operations
             }
             else
             {
-                return new InsertOperation(remoteInsert.UserId, remoteInsert.Position + localInsert.Length, remoteInsert.Text);
+                return remoteInsert.NewWithPosition(remoteInsert.Position + localInsert.Length);
             }
         }
         private OperationBase TransformInsertDelete(InsertOperation remoteInsert, DeleteOperation localDelete)
@@ -56,7 +55,7 @@ namespace OperationalTransform.Operations
             }
             else
             {
-                return new InsertOperation(remoteInsert.UserId, remoteInsert.Position - localDelete.Position, remoteInsert.Text);
+                return remoteInsert.NewWithPosition(remoteInsert.Position - localDelete.Length);
             }
         }
         private OperationBase TransformDeleteInsert(DeleteOperation remoteDelete, InsertOperation localInsert)
@@ -67,7 +66,7 @@ namespace OperationalTransform.Operations
             }
             else
             {
-                return new DeleteOperation(remoteDelete.UserId, remoteDelete.Position + localInsert.Length, remoteDelete.Text);
+                return remoteDelete.NewWithPosition(remoteDelete.Position + localInsert.Length);
             }
         }
         private OperationBase TransformDeleteDelete(DeleteOperation remoteDelete, DeleteOperation localDelete)
@@ -78,11 +77,11 @@ namespace OperationalTransform.Operations
             }
             else if(remoteDelete.Position > localDelete.Position)
             {
-                return new DeleteOperation(remoteDelete.UserId, remoteDelete.Position - localDelete.Length, remoteDelete.Text);
+                return remoteDelete.NewWithPosition(remoteDelete.Position - localDelete.Length);
             }
             else
             {
-                return new IdentityOperation(remoteDelete.UserId);
+                return new IdentityOperation(remoteDelete.UserId, remoteDelete.SequenceId);
             }
         }
 

@@ -8,14 +8,18 @@ namespace OperationalTransform.Operations
 {
     public class DeleteOperation : OperationBase
     {
-        public DeleteOperation(int userId, int position, char text) : base(userId, position, text) { }
+        public static DeleteOperation CreateFromState(int userId, int sequenceId, int position, string state)
+        {
+            return new DeleteOperation(userId, sequenceId, position, state[position]);
+        }
+        public DeleteOperation(int userId, int sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
         public override OperationBase CreateInverse()
         {
-            return new InsertOperation(UserId, Position, Text);
+            return new InsertOperation(UserId, SequenceId, Position, Text);
         }
         public override OperationBase NewWithPosition(int newPosition)
         {
-            return new InsertOperation(UserId, newPosition, Text);
+            return new DeleteOperation(UserId, SequenceId, newPosition, Text);
         }
         public override string ApplyTransform(string state)
         {
