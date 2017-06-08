@@ -6,7 +6,7 @@ using OperationalTransform.StateManagement;
 namespace OperationalTransform.Tests
 {
     [TestClass]
-    public class OperationTests
+    public class DeleteOperationTests
     {
         [TestMethod]
         public void DeleteOperation_CreateFromState_CreatesCorrectly()
