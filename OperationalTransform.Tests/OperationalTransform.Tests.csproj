@@ -48,6 +48,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OperationTransformer\TransformInversePropertiesTests.cs" />
+    <Compile Include="OperationTransformer\TransformConvergencePropertiesTests.cs" />
     <Compile Include="OperationTransformer\TransformDeleteInsertTests.cs" />
     <Compile Include="OperationTransformer\TransformDeleteDeleteTests.cs" />
     <Compile Include="OperationTransformer\TransformInsertDeleteTests.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="Operation\InsertOperationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OperationTransformer\TransformInsertInsertTests.cs" />
+    <Compile Include="SiteState\ApplyTransformTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

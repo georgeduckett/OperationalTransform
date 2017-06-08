@@ -8,7 +8,7 @@ namespace OperationalTransform.Operations
 {
     public class InsertOperation : OperationBase
     {
-        public InsertOperation(int userId, int sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
+        public InsertOperation(uint userId, uint sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
         public override string ApplyTransform(string state)
         {
             return state.Substring(0, Position) + Text + state.Substring(Position);

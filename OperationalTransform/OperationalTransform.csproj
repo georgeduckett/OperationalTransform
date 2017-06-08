@@ -44,9 +44,10 @@
     <Compile Include="Operations\IdentityOperation.cs" />
     <Compile Include="Operations\InsertOperation.cs" />
     <Compile Include="Operations\OperationBase.cs" />
+    <Compile Include="Operations\AppliedOperation.cs" />
     <Compile Include="Operations\OperationTransformer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StateManagement\State.cs" />
+    <Compile Include="StateManagement\SiteState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

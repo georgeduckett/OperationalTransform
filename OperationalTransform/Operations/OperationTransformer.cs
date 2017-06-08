@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OperationalTransform.Operations
 {
-    public class OperationTransformer
+    public static class OperationTransformer
     {
         /// <summary>
         /// Implements operational transforms as per http://cooffice.ntu.edu.sg/otfaq/ 2.15
@@ -14,7 +14,7 @@ namespace OperationalTransform.Operations
         /// <param name="remoteOperation">The remote operation we want to transform</param>
         /// <param name="localOperation">The local operation we want to transform using</param>
         /// <returns></returns>
-        public OperationBase Transform(OperationBase remoteOperation, OperationBase localOperation)
+        public static OperationBase Transform(OperationBase remoteOperation, OperationBase localOperation)
         {
             switch (remoteOperation)
             {
@@ -35,7 +35,7 @@ namespace OperationalTransform.Operations
                 default: throw new InvalidOperationException();
             }
         }
-        private OperationBase TransformInsertInsert(InsertOperation remoteInsert, InsertOperation localInsert)
+        private static OperationBase TransformInsertInsert(InsertOperation remoteInsert, InsertOperation localInsert)
         {
             if(remoteInsert.Position < localInsert.Position ||
                 (remoteInsert.Position == localInsert.Position && remoteInsert.UserId > localInsert.UserId))
@@ -47,7 +47,7 @@ namespace OperationalTransform.Operations
                 return remoteInsert.NewWithPosition(remoteInsert.Position + localInsert.Length);
             }
         }
-        private OperationBase TransformInsertDelete(InsertOperation remoteInsert, DeleteOperation localDelete)
+        private static OperationBase TransformInsertDelete(InsertOperation remoteInsert, DeleteOperation localDelete)
         {
             if(remoteInsert.Position <= localDelete.Position)
             {
@@ -58,7 +58,7 @@ namespace OperationalTransform.Operations
                 return remoteInsert.NewWithPosition(remoteInsert.Position - localDelete.Length);
             }
         }
-        private OperationBase TransformDeleteInsert(DeleteOperation remoteDelete, InsertOperation localInsert)
+        private static OperationBase TransformDeleteInsert(DeleteOperation remoteDelete, InsertOperation localInsert)
         {
             if(remoteDelete.Position < localInsert.Position)
             {
@@ -69,7 +69,7 @@ namespace OperationalTransform.Operations
                 return remoteDelete.NewWithPosition(remoteDelete.Position + localInsert.Length);
             }
         }
-        private OperationBase TransformDeleteDelete(DeleteOperation remoteDelete, DeleteOperation localDelete)
+        private static OperationBase TransformDeleteDelete(DeleteOperation remoteDelete, DeleteOperation localDelete)
         {
             if(remoteDelete.Position < localDelete.Position)
             {

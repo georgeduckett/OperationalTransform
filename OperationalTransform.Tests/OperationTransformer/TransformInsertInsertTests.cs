@@ -7,7 +7,6 @@ namespace OperationalTransform.Tests
     [TestClass]
     public class TransformInsertInsertTests
     {
-        private readonly OperationTransformer Transformer = new OperationTransformer();
         [TestMethod]
         public void OperationTransformer_TransformInsertInsert_LocalBeforeRemote()
         {
@@ -16,7 +15,7 @@ namespace OperationalTransform.Tests
             var localOperation = new InsertOperation(1, 1, 2, 'a');
             var remoteOperation = new InsertOperation(2, 2, 4, 'b');
 
-            var transformed = Transformer.Transform(remoteOperation, localOperation);
+            var transformed = OperationTransformer.Transform(remoteOperation, localOperation);
 
             state = localOperation.ApplyTransform(state);
             state = transformed.ApplyTransform(state);
@@ -31,7 +30,7 @@ namespace OperationalTransform.Tests
             var localOperation = new InsertOperation(1, 1, 4, 'a');
             var remoteOperation = new InsertOperation(2, 2, 2, 'b');
 
-            var transformed = Transformer.Transform(remoteOperation, localOperation);
+            var transformed = OperationTransformer.Transform(remoteOperation, localOperation);
 
             state = localOperation.ApplyTransform(state);
             state = transformed.ApplyTransform(state);
@@ -46,7 +45,7 @@ namespace OperationalTransform.Tests
             var localOperation = new InsertOperation(1, 1, 2, 'a');
             var remoteOperation = new InsertOperation(2, 2, 2, 'b');
 
-            var transformed = Transformer.Transform(remoteOperation, localOperation);
+            var transformed = OperationTransformer.Transform(remoteOperation, localOperation);
 
             state = localOperation.ApplyTransform(state);
             state = transformed.ApplyTransform(state);

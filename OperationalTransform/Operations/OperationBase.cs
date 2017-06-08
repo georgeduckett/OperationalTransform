@@ -8,11 +8,12 @@ namespace OperationalTransform.Operations
 {
     public abstract class OperationBase
     {
-        public readonly int UserId;
-        public readonly int SequenceId;
+        public readonly uint UserId;
+        public readonly uint SequenceId;
         public readonly int Position;
         public readonly char Text; // If we want this to support strings more than just changing this type is needed, see http://cooffice.ntu.edu.sg/otfaq/ 2.16
-        public OperationBase(int userId, int sequenceId, int position, char text)
+        public ulong Id => ((ulong)UserId << 32) | SequenceId;
+        public OperationBase(uint userId, uint sequenceId, int position, char text)
         {
             UserId = userId;
             SequenceId = sequenceId;

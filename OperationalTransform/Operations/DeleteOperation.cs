@@ -8,11 +8,11 @@ namespace OperationalTransform.Operations
 {
     public class DeleteOperation : OperationBase
     {
-        public static DeleteOperation CreateFromState(int userId, int sequenceId, int position, string state)
+        public static DeleteOperation CreateFromState(uint userId, uint sequenceId, int position, string state)
         {
             return new DeleteOperation(userId, sequenceId, position, state[position]);
         }
-        public DeleteOperation(int userId, int sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
+        public DeleteOperation(uint userId, uint sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
         public override OperationBase CreateInverse()
         {
             return new InsertOperation(UserId, SequenceId, Position, Text);
