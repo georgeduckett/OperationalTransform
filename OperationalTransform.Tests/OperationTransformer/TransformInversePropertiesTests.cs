@@ -26,7 +26,7 @@ namespace OperationalTransform.Tests
         public void OperationTransformer_Transform_IP2Satisfied()
         {
             var state = new DocumentState(1, "1234");
-            var op = new InsertOperation(state, 1, 'a'); // TODO: Try this for each combination of operation
+            var op = new InsertOperation(state, 1, 'a');
             var opUndo = op.CreateInverse();
 
             var opx = new InsertOperation(state, 3, 'b');
@@ -41,7 +41,7 @@ namespace OperationalTransform.Tests
             var state1 = new DocumentState(1, "1234");
             var state2 = new DocumentState(2, "1234");
 
-            var op1 = new InsertOperation(state1, 1, 'a');
+            var op1 = new InsertOperation(state1, 1, 'a'); // TODO: Try this (and others) for each combination of operation (and combination of before/same/after indexes)
             var op2 = new InsertOperation(state2, 1, 'b');
 
             var op1dash = OperationTransformer.Transform(op1, op2);
