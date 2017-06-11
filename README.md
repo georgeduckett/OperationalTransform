@@ -1,13 +1,12 @@
 A C# implementation of Operational Transforms
 --
 
-An in-development implementation of [Operational Transformation](https://en.wikipedia.org/wiki/Operational_transformation); a system for supporting the simultaneous editing of documents.
+An in-development implementation of [Operational Transformation](https://en.wikipedia.org/wiki/Operational_transformation); a system for supporting the simultaneous editing of documents. Further reading here: http://cooffice.ntu.edu.sg/otfaq/
 
-Currently consists of a library project; OperationalTransform containing all the logic, plus a test project that should ensure correctness (according to the principals of Operational Transforms).
+Currently consists of a library project containing all the logic, plus a test project that should ensure correctness (according to the principals of Operational Transforms). I plan to add an example app next.
 
-The [wikipedia page](https://en.wikipedia.org/wiki/Operational_transformation) has a good overview, but the main principal is that any number of users could be making changes at any one time, so the order in which the changes are applied to a document must not matter; the system should work out the intent of the change at the origin site and translate it into something that can be applied locally.
+The [wikipedia page](https://en.wikipedia.org/wiki/Operational_transformation) has a good overview, but the main principal is that any number of users could be making changes at any one time, so the order in which the changes are applied to a document must not matter; the system should work out the intent of the change at the origin site and translate it into something that can be applied locally (example below).
 
-e.g:  
 With an initial document of `1234567890`  
 User a inserts an "a" at index 5 to make their local state `12345a67890`  
 User b inserts a "b" at index 8 to make their local state `12345678b90`  
@@ -17,9 +16,10 @@ If this was just applied with no translation the result would be `12345a67b890`.
 
 What needs to happen when user a receives b's change is for user a to compare their document state to the document state b is intended to be applied to. Here "document state" can be thought of as the list of operations prior to the one being evaluated.
 
-e.g:
+User a receives b's change.  
+User a finds a change that wasn't included in the document state that b's change was applied to (the [insert a at index 5] command), therefore we need to translate the b command by a's command before applying it. Because a's command is an insert, at an index before b's command we change b's command from [insert b at index 8] to [insert b at index 9], so the document state correctly becomes `12345a678b90`.
 
-User a receives b's change. User a finds a change that wasn't included in the document state that b's change was applied to (the [insert a at index 5] command), therefore we need to translate the b command by a's command before applying it. Because a's command is an insert, at an index before b's command we change b's command from [insert b at index 8] to [insert b at index 9], so the document state correctly becomes `12345a678b90`.
+In addition to handling the 'basic' senaroi above, the system should also handle independent undo operations. e.g. if user a above issues an undo command it should undo the last operation performed by a, not the last opeartion (b's operation).
 
 ---
 
