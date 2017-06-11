@@ -25,7 +25,7 @@ namespace OperationalTransform.Operations
                     {
                         case InsertOperation localInsert: return TransformInsertInsert(remoteInsert, localInsert);
                         case DeleteOperation localDelete: return TransformInsertDelete(remoteInsert, localDelete);
-                        case IdentityOperation localIdentity: return localIdentity;
+                        case IdentityOperation localIdentity: return remoteOperation;
                         default: throw new InvalidOperationException();
                     }
                 case DeleteOperation remoteDelete:
@@ -33,10 +33,10 @@ namespace OperationalTransform.Operations
                     {
                         case InsertOperation localInsert: return TransformDeleteInsert(remoteDelete, localInsert);
                         case DeleteOperation localDelete: return TransformDeleteDelete(remoteDelete, localDelete);
-                        case IdentityOperation localIdentity: return localIdentity;
+                        case IdentityOperation localIdentity: return remoteOperation;
                         default: throw new InvalidOperationException();
                     }
-                case IdentityOperation remoteIdentity: return remoteIdentity;
+                case IdentityOperation remoteIdentity: return remoteOperation;
                 default: throw new InvalidOperationException();
             }
         }

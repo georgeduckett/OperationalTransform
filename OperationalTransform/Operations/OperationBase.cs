@@ -40,7 +40,7 @@ namespace OperationalTransform.Operations
             {
                 return false;
             }
-            return UserId == other.UserId && SequenceId == other.SequenceId && Position == other.Position && Text == other.Text;
+            return Position == other.Position && Text == other.Text;
         }
     }
 }
