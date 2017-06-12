@@ -42,5 +42,9 @@ namespace OperationalTransform.Operations
             }
             return Position == other.Position && Text == other.Text;
         }
+        public override string ToString()
+        {
+            return $"({Position}, '{Text}'), user {UserId}";
+        }
     }
 }

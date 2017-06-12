@@ -31,5 +31,9 @@ namespace OperationalTransform.Operations
         {
             return state.Substring(0, Position) + state.Substring(Position + Length);
         }
+        public override string ToString()
+        {
+            return "Del" + base.ToString();
+        }
     }
 }

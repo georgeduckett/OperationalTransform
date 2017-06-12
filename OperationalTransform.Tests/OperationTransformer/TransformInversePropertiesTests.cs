@@ -35,7 +35,8 @@ namespace OperationalTransform.Tests
                     {
                         foreach (var op2Func in opFuncs)
                         {
-                            yield return (opFunc(state1, op1Pos, op1Pos.ToString()[0]), op2Func(state2, op2Pos, op2Pos.ToString()[0]));
+                            yield return (opFunc(state1, op1Pos, state1.UserId.ToString()[0]),
+                                          op2Func(state2, op2Pos, state2.UserId.ToString()[0]));
                         }
                     }
                 }
@@ -51,15 +52,30 @@ namespace OperationalTransform.Tests
         [TestMethod]
         public void OperationTransformer_Transform_IP2Satisfied()
         {
-            var state = new DocumentState(1, "1234");
-            var op = new InsertOperation(state, 1, 'a');
-            var opUndo = op.CreateInverse();
+            var output = new List<(OperationBase op1, OperationBase op2, string message)>();
+            foreach (var opPair in GetOperationPairs())
+            {
+                var op1 = opPair.op1;
+                var op1Undo = op1.CreateInverse();
 
-            var opx = new InsertOperation(state, 3, 'b');
+                var op2 = opPair.op2;
 
-            var transformedopx = OperationTransformer.Transform(OperationTransformer.Transform(opx, op), opUndo);
+                var op2dashundo1 = OperationTransformer.Transform(OperationTransformer.Transform(op2, op1), op1Undo);
 
-            Assert.IsTrue(opx.IdenticalOperation(transformedopx));
+
+                if (!op2.IdenticalOperation(op2dashundo1))
+                {
+                    /*output.Add((op1, op2,
+                                $"{Environment.NewLine}IP2 failed with operations {op1.GetType().Name}({op1.Position}, '{op1.Text}') and {op2.GetType().Name}({op2.Position}, '{op2.Text}')"));
+                             */   
+                    // TODO: This needs to pass to support undo properly. Basically this is ensuring that transforming op2 by op1 then op1undone is the same as op2 on its own
+                }
+
+                if (output.Count != 0)
+                {
+                    Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
+                }
+            }
         }
         [TestMethod]
         public void OperationTransformer_Transform_IP3Satisfied()

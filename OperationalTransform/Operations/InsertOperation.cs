@@ -26,5 +26,9 @@ namespace OperationalTransform.Operations
         {
             return new InsertOperation(UserId, SequenceId, newPosition, Text);
         }
+        public override string ToString()
+        {
+            return "Ins" + base.ToString();
+        }
     }
 }

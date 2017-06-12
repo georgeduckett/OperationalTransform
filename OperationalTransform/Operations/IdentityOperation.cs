@@ -17,5 +17,9 @@ namespace OperationalTransform.Operations
         public override string ApplyTransform(string state) => state;
         public override OperationBase CreateInverse() => this;
         public override OperationBase NewWithPosition(int newPosition) => new IdentityOperation(UserId, SequenceId);
+        public override string ToString()
+        {
+            return nameof(IdentityOperation);
+        }
     }
 }
