@@ -33,7 +33,7 @@ namespace OperationalTransform.Operations
         }
         public override string ToString()
         {
-            return "Del" + base.ToString();
+            return $"{GetType().Name}({Position}), user {UserId}";
         }
     }
 }

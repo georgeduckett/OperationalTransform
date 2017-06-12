@@ -20,7 +20,7 @@ namespace OperationalTransform.Tests
             var opFuncs = new Func<DocumentState, int, char, OperationBase>[] {
                 (ds, pos, text) => new InsertOperation(ds, pos, text),
                 (ds, pos, text) => new DeleteOperation(ds, pos),
-                (ds, pos, text) => new IdentityOperation(ds),
+                //(ds, pos, text) => new IdentityOperation(ds),
             };
 
             var opIndexes = new[] { 1, 2, 3 };
@@ -29,15 +29,12 @@ namespace OperationalTransform.Tests
             var state2 = new DocumentState(2, "abcd");
             foreach (var op1Pos in opIndexes)
             {
-                foreach(var op2Pos in opIndexes)
+                foreach (var opFunc in opFuncs)
                 {
-                    foreach(var opFunc in opFuncs)
+                    foreach (var op2Func in opFuncs)
                     {
-                        foreach (var op2Func in opFuncs)
-                        {
-                            yield return (opFunc(state1, op1Pos, state1.UserId.ToString()[0]),
-                                          op2Func(state2, op2Pos, state2.UserId.ToString()[0]));
-                        }
+                        yield return (opFunc(state1, op1Pos, state1.UserId.ToString()[0]),
+                                        op2Func(state2, 2, state2.UserId.ToString()[0]));
                     }
                 }
             }
@@ -55,26 +52,22 @@ namespace OperationalTransform.Tests
             var output = new List<(OperationBase op1, OperationBase op2, string message)>();
             foreach (var opPair in GetOperationPairs())
             {
-                var op1 = opPair.op1;
-                var op1Undo = op1.CreateInverse();
+                var opx = opPair.op1;
+                var op = opPair.op2;
 
-                var op2 = opPair.op2;
-
-                var op2dashundo1 = OperationTransformer.Transform(OperationTransformer.Transform(op2, op1), op1Undo);
-
-
-                if (!op2.IdenticalOperation(op2dashundo1))
+                OperationBase opUndo = op.CreateInverse();
+                if (!opx.IdenticalOperation(OperationTransformer.Transform(opx, OperationTransformer.Transform(op, opUndo))))
                 {
-                    /*output.Add((op1, op2,
-                                $"{Environment.NewLine}IP2 failed with operations {op1.GetType().Name}({op1.Position}, '{op1.Text}') and {op2.GetType().Name}({op2.Position}, '{op2.Text}')"));
-                             */   
+                    /*output.Add((opx, op,
+                                $"{Environment.NewLine}IP2 failed with opx = {opx} and op = {op}"));
+                                */
                     // TODO: This needs to pass to support undo properly. Basically this is ensuring that transforming op2 by op1 then op1undone is the same as op2 on its own
                 }
+            }
 
-                if (output.Count != 0)
-                {
-                    Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
-                }
+            if (output.Count != 0)
+            {
+                Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
             }
         }
         [TestMethod]

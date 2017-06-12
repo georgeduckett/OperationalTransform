@@ -44,7 +44,7 @@ namespace OperationalTransform.Operations
         }
         public override string ToString()
         {
-            return $"({Position}, '{Text}'), user {UserId}";
+            return $"{GetType().Name}({Position}, '{Text}'), user {UserId}";
         }
     }
 }
