@@ -12,6 +12,7 @@ namespace OperationalTransform.Operations
     /// </summary>
     public class AppliedOperation
     {
+        private AppliedOperation() { } // For use with serializers like protobuf-net
         /// <summary>
         /// A static empty collection to re-use for any applied operation that is applied to a site that's not had any state alterations
         /// </summary>

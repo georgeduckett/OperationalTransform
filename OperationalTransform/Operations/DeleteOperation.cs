@@ -12,6 +12,8 @@ namespace OperationalTransform.Operations
     /// </summary>
     public class DeleteOperation : OperationBase
     {
+        private DeleteOperation() : base() { } // For use with protobuf-net
+
         internal DeleteOperation(uint userId, uint sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
         /// <summary>
         /// Creates a delete operation based for use on the specified site

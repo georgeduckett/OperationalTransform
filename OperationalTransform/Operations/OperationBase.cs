@@ -12,6 +12,8 @@ namespace OperationalTransform.Operations
     /// </summary>
     public abstract class OperationBase
     {
+        protected OperationBase() { } // For use with protobuf-net
+
         public readonly uint UserId;
         public readonly uint SequenceId;
         public readonly int Position;

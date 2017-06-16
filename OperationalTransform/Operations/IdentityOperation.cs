@@ -12,6 +12,8 @@ namespace OperationalTransform.Operations
     /// </summary>
     public class IdentityOperation : OperationBase
     {
+        private IdentityOperation() : base() { } // For use with protobuf-net
+
         internal IdentityOperation(uint userId, uint sequenceId) : base(userId, sequenceId, 0, (char)0) { }
         public IdentityOperation(DocumentState siteState) : base(siteState, 0, (char)0) { }
         public override string ApplyTransform(string state) => state;

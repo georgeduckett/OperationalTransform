@@ -98,7 +98,7 @@ namespace Server
                 }
                 if (result.Item1 == 0) return;
                 var sendBuffer = ASBuffer.Duplicate(receiveBuffer);
-                ASBuffer.FinalizeBuffer(sendBuffer);
+                ASBuffer.FinalizeBuffer(sendBuffer); // TODO: Why does this appear to be loosing message if sent in quick succession
 
                 foreach (var client in ClientSockets.Keys)
                 {

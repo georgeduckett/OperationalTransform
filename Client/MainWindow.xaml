@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <TextBox x:Name="txtDocument" Margin="10" AcceptsTab="True" AcceptsReturn="True" TextChanged="TextBox_TextChanged"/>
+        <TextBox x:Name="txtDocument" Margin="10" AcceptsTab="True" AcceptsReturn="True" TextChanged="txtDocument_TextChanged"/>
 
     </Grid>
 </Window>

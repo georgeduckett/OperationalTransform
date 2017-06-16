@@ -12,6 +12,8 @@ namespace OperationalTransform.Operations
     /// </summary>
     public class InsertOperation : OperationBase
     {
+        private InsertOperation() : base() { } // For use with protobuf-net
+
         internal InsertOperation(uint userId, uint sequenceId, int position, char text) : base(userId, sequenceId, position, text) { }
         public InsertOperation(DocumentState siteState, int position, char text) : base(siteState, position, text) { }
         public override string ApplyTransform(string state)
