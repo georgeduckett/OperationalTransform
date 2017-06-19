@@ -14,16 +14,21 @@ namespace Client
     {
         public AppliedOperationSurrogate() { }
         public OperationBase Operation { get; set; }
-        public ICollection<ulong> PriorStateTransformIds { get; set; }
+        public List<ulong> PriorStateTransformIds { get; set; }
 
         public static implicit operator AppliedOperation(AppliedOperationSurrogate appliedOperationSurrogate)
         {
+            if(appliedOperationSurrogate.PriorStateTransformIds == null)
+            { // Protobuf treats empty lists as null
+                appliedOperationSurrogate.PriorStateTransformIds = new List<ulong>();
+            }
+
             var appliedOperation = (AppliedOperation)typeof(AppliedOperation).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, Type.EmptyTypes, null).Invoke(new object[] { });
 
             typeof(AppliedOperation).GetField(nameof(AppliedOperation.Operation))
                 .SetValue(appliedOperation, appliedOperationSurrogate.Operation);
             typeof(AppliedOperation).GetField(nameof(AppliedOperation.PriorStateTransformIds))
-                .SetValue(appliedOperation, (IReadOnlyCollection<ulong>)appliedOperationSurrogate.PriorStateTransformIds);
+                .SetValue(appliedOperation, appliedOperationSurrogate.PriorStateTransformIds);
 
             return appliedOperation;
         }

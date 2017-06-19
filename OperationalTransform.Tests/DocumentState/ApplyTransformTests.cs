@@ -55,6 +55,32 @@ namespace OperationalTransform.Tests
             Assert.AreEqual(localDocumentState.CurrentState, remoteDocumentState.CurrentState);
         }
         /// <summary>
+        /// Tests http://www3.ntu.edu.sg/home/czsun/projects/otfaq/#req_consistency_maintenance - Convergence
+        /// </summary>
+        [TestMethod]
+        public void DocumentState_ApplyTransform_Convergence_MultipleInsertsSameIndex()
+        {
+            var localDocumentState = new DocumentState(1, "");
+            var remoteDocumentState = new DocumentState(2, "");
+            var localTransform = new AppliedOperation(new InsertOperation(localDocumentState, 0, 'x'), localDocumentState);
+            localDocumentState.ApplyTransform(localTransform);
+            var localTransform2 = new AppliedOperation(new InsertOperation(localDocumentState, 1, 'x'), localDocumentState);
+            localDocumentState.ApplyTransform(localTransform2);
+
+            var remoteTransform = new AppliedOperation(new InsertOperation(remoteDocumentState, 0, 'Y'), remoteDocumentState);
+            remoteDocumentState.ApplyTransform(remoteTransform);
+            var remoteTransform2 = new AppliedOperation(new InsertOperation(remoteDocumentState, 1, 'Y'), remoteDocumentState);
+            remoteDocumentState.ApplyTransform(remoteTransform2);
+
+            localDocumentState.ApplyTransform(remoteTransform);
+            localDocumentState.ApplyTransform(remoteTransform2);
+
+            remoteDocumentState.ApplyTransform(localTransform);
+            remoteDocumentState.ApplyTransform(localTransform2);
+
+            Assert.AreEqual(localDocumentState.CurrentState, remoteDocumentState.CurrentState);
+        }
+        /// <summary>
         /// Tests http://www3.ntu.edu.sg/home/czsun/projects/otfaq/#req_consistency_maintenance - Intention Preservation
         /// </summary>
         [TestMethod]

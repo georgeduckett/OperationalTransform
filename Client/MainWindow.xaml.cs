@@ -29,6 +29,7 @@ namespace Client
         DocumentState DocumentState;
         public MainWindow()
         {
+            Dispatcher.UnhandledException += Dispatcher_UnhandledException;
             InitializeComponent();
             SocketClient = SocketMessaging.TcpClient.Connect(System.Net.IPAddress.Parse("127.0.0.1"), 8888);
             SocketClient.SetMode(SocketMessaging.MessageMode.PrefixedLength);
@@ -51,6 +52,11 @@ namespace Client
                                     .AddSubType(103, RuntimeTypeModel.Default.Add<IdentityOperation>().Type);
         }
 
+        private void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            throw e.Exception;
+        }
+
         private void SocketClient_ReceivedMessage(object sender, EventArgs e)
         {
             using (var ms = new MemoryStream(SocketClient.ReceiveMessage()))
@@ -60,7 +66,15 @@ namespace Client
                     txtDocument.TextChanged -= txtDocument_TextChanged;
 
                     AppliedOperation appliedOperation = ProtoBuf.Serializer.Deserialize<AppliedOperation>(ms);
-                    DocumentState.ApplyTransform(appliedOperation);
+                    try
+                    {
+                        DocumentState.ApplyTransform(appliedOperation);
+                    }
+                    catch (Exception)
+                    {
+                        System.Diagnostics.Debugger.Break();
+                        throw;
+                    }
 
                     txtDocument.Text = DocumentState.CurrentState; // TODO: Handle translating the cursor if needed
                     txtDocument.TextChanged += txtDocument_TextChanged;

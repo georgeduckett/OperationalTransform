@@ -59,11 +59,15 @@ namespace OperationalTransform.StateManagement
 
             foreach(var id in missingRemoteTransformIds)
             {
-                operation = OperationTransformer.Transform(operation, _AppliedOperations[id]);
+                operation = OperationTransformer.Transform(operation, _AppliedOperations[id]); // TODO Possibly need to calculate the adjustment amount relative to the original, then adjust at the end
             }
 
             CurrentState = operation.ApplyTransform(CurrentState);
             _AppliedOperations.Add(operation.Id, operation);
+        }
+        public override string ToString()
+        {
+            return $"UserId: {UserId}, Applied Operations: {_AppliedOperations.Count}, Content:{(CurrentState.Length > 50 ? CurrentState.Substring(0, 50) + "..." : CurrentState)}";
         }
     }
 }

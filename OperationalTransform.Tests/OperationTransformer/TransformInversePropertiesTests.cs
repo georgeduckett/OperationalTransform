@@ -60,7 +60,7 @@ namespace OperationalTransform.Tests
                 {
                     /*output.Add((opx, op,
                                 $"{Environment.NewLine}IP2 failed with opx = {opx} and op = {op}"));
-                                */
+                           */     
                     // TODO: This needs to pass to support undo properly. Basically this is ensuring that transforming op2 by op1 then op1undone is the same as op2 on its own
                 }
             }

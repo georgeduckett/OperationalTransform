@@ -1,6 +1,7 @@
 ﻿using OperationalTransform.StateManagement;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,6 +42,11 @@ namespace OperationalTransform.Operations
         /// </summary>
         /// <param name="operation"></param>
         /// <param name="siteState"></param>
-        public AppliedOperation(OperationBase operation, DocumentState siteState) : this(operation, (IReadOnlyCollection<ulong>)siteState.AppliedOperations.Keys) { }
+        public AppliedOperation(OperationBase operation, DocumentState siteState) : this(operation, new ReadOnlyCollection<ulong>(siteState.AppliedOperations.Keys.ToArray())) { }
+
+        public override string ToString()
+        {
+            return $"Prior Transforms: {PriorStateTransformIds.Count}, Operation:[{Operation}]";
+        }
     }
 }
