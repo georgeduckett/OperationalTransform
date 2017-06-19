@@ -24,6 +24,7 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string OldText = string.Empty;
         SocketMessaging.TcpClient SocketClient = null;
         DocumentState DocumentState;
         public MainWindow()
@@ -72,7 +73,6 @@ namespace Client
             SocketClient.Close();
             base.OnClosed(e);
         }
-
         private void txtDocument_TextChanged(object sender, TextChangedEventArgs e)
         {
             foreach(var change in e.Changes)
@@ -90,21 +90,30 @@ namespace Client
                         using (var ms = new MemoryStream())
                         {
                             ProtoBuf.Serializer.Serialize(ms, appliedOperation);
-                            SocketClient.Send(ms.ToArray());
+                            Task.Delay(10000).ContinueWith(t => SocketClient.Send(ms.ToArray()));
                         }
                     }
                 }
                 else
                 {
-                    throw new NotImplementedException("No easy way to get deleted text!");
-
+                    var removedString = ((TextBox)sender).Text.Substring(change.Offset, change.RemovedLength);
+                    foreach (var c in removedString)
+                    {
+                        appliedOperation = new AppliedOperation(new DeleteOperation(DocumentState, change.Offset), DocumentState);
+                        DocumentState.ApplyTransform(appliedOperation);
+                        using (var ms = new MemoryStream())
+                        {
+                            ProtoBuf.Serializer.Serialize(ms, appliedOperation);
+                            Task.Delay(10000).ContinueWith(t => SocketClient.Send(ms.ToArray()));
+                        }
+                    }
                 }
 
             }
 
-
             txtDocument.TextChanged -= txtDocument_TextChanged;
 
+            OldText = txtDocument.Text;
             txtDocument.Text = DocumentState.CurrentState; // Apply local changes via the document state
 
             txtDocument.TextChanged += txtDocument_TextChanged;
