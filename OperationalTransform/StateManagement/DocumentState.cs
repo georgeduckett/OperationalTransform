@@ -18,6 +18,10 @@ namespace OperationalTransform.StateManagement
         /// </summary>
         private Dictionary<ulong, OperationBase> _AppliedOperations = new Dictionary<ulong, OperationBase>();
         /// <summary>
+        /// The order in which the operations were applied
+        /// </summary>
+        private List<ulong> _AppliedOperationsOrder = new List<ulong>();
+        /// <summary>
         /// A collection of all the operations that have been applied to this document
         /// </summary>
         public IReadOnlyDictionary<ulong, OperationBase> AppliedOperations => _AppliedOperations;
@@ -53,18 +57,28 @@ namespace OperationalTransform.StateManagement
         /// <param name="appliedOperation"></param>
         public void ApplyTransform(AppliedOperation appliedOperation)
         {
-            var missingRemoteTransformIds = AppliedOperations.Keys.Except(appliedOperation.PriorStateTransformIds);
+            var missingRemoteTransformIds = _AppliedOperationsOrder.Except(appliedOperation.PriorStateTransformIds);
 
             var operation = appliedOperation.Operation;
 
-            foreach(var id in missingRemoteTransformIds)
+            foreach (var id in missingRemoteTransformIds.Reverse())
             {
-                operation = OperationTransformer.Transform(operation, _AppliedOperations[id]); // TODO Possibly need to calculate the adjustment amount relative to the original, then adjust at the end
+                operation = OperationTransformer.Transform(operation, _AppliedOperations[id]);
             }
 
+            TransformState(operation);
+        }
+        /// <summary>
+        /// Transforms the document state and records the applied operation
+        /// </summary>
+        /// <param name="operation"></param>
+        private void TransformState(OperationBase operation)
+        {
             CurrentState = operation.ApplyTransform(CurrentState);
             _AppliedOperations.Add(operation.Id, operation);
+            _AppliedOperationsOrder.Add(operation.Id);
         }
+
         public override string ToString()
         {
             return $"UserId: {UserId}, Applied Operations: {_AppliedOperations.Count}, Content:{(CurrentState.Length > 50 ? CurrentState.Substring(0, 50) + "..." : CurrentState)}";
