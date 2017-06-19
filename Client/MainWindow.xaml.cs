@@ -24,13 +24,15 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        SocketClient SocketClient = null;
+        SocketMessaging.TcpClient SocketClient = null;
         DocumentState DocumentState;
         public MainWindow()
         {
             InitializeComponent();
-            SocketClient = new SocketClient();
-            SocketClient.MessageReceived += SocketClient_MessageReceived;
+            SocketClient = SocketMessaging.TcpClient.Connect(System.Net.IPAddress.Parse("127.0.0.1"), 8888);
+            SocketClient.SetMode(SocketMessaging.MessageMode.PrefixedLength);
+            SocketClient.ReceivedMessage += SocketClient_ReceivedMessage;
+            
 
             var proccesList = System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).OrderBy(p => p.Id).ToArray();
 
@@ -48,29 +50,26 @@ namespace Client
                                     .AddSubType(103, RuntimeTypeModel.Default.Add<IdentityOperation>().Type);
         }
 
-        private void SocketClient_MessageReceived(object sender, SocketClient.MessageReceivedEventArgs e)
+        private void SocketClient_ReceivedMessage(object sender, EventArgs e)
         {
-            Dispatcher.Invoke(() =>
+            using (var ms = new MemoryStream(SocketClient.ReceiveMessage()))
             {
-                txtDocument.TextChanged -= txtDocument_TextChanged;
-
-                try
+                Dispatcher.Invoke(() =>
                 {
-                    using (var ms = new MemoryStream(e.Message))
-                    {
-                        AppliedOperation appliedOperation = ProtoBuf.Serializer.Deserialize<AppliedOperation>(ms);
-                        DocumentState.ApplyTransform(appliedOperation);
-                    }
-                }
-                catch (Exception) { }
-                txtDocument.Text = DocumentState.CurrentState; // TODO: Handle translating the cursor if needed
-                txtDocument.TextChanged += txtDocument_TextChanged;
-            });
+                    txtDocument.TextChanged -= txtDocument_TextChanged;
+
+                    AppliedOperation appliedOperation = ProtoBuf.Serializer.Deserialize<AppliedOperation>(ms);
+                    DocumentState.ApplyTransform(appliedOperation);
+
+                    txtDocument.Text = DocumentState.CurrentState; // TODO: Handle translating the cursor if needed
+                    txtDocument.TextChanged += txtDocument_TextChanged;
+                });
+            }
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            SocketClient.Dispose();
+            SocketClient.Close();
             base.OnClosed(e);
         }
 
@@ -91,7 +90,7 @@ namespace Client
                         using (var ms = new MemoryStream())
                         {
                             ProtoBuf.Serializer.Serialize(ms, appliedOperation);
-                            SocketClient.SendData(ms.ToArray());
+                            SocketClient.Send(ms.ToArray());
                         }
                     }
                 }
