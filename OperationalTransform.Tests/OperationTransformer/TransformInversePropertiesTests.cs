@@ -46,7 +46,7 @@ namespace OperationalTransform.Tests
             new DeleteOperationTests().DeleteOperation_CreateInverse_InverseUndoesDelete();
             new IdentityOperationTests().IdentityOperation_CreateInverse_InverseMaintainsState();
         }
-        [TestMethod]
+        [TestMethod][Ignore] // TODO: Get IP2 succeeding (if needed)
         public void OperationTransformer_Transform_IP2Satisfied()
         {
             var output = new List<(OperationBase op1, OperationBase op2, string message)>();
@@ -58,9 +58,8 @@ namespace OperationalTransform.Tests
                 OperationBase opUndo = op.CreateInverse();
                 if (!opx.IdenticalOperation(OperationTransformer.Transform(opx, OperationTransformer.Transform(op, opUndo))))
                 {
-                    /*output.Add((opx, op,
-                                $"{Environment.NewLine}IP2 failed with opx = {opx} and op = {op}"));
-                           */     
+                    output.Add((opx, op,
+                                $"{Environment.NewLine}IP2 failed with opx = {opx} and op = {op}"));   
                     // TODO: This needs to pass to support undo properly. Basically this is ensuring that transforming op2 by op1 then op1undone is the same as op2 on its own
                 }
             }
@@ -70,7 +69,7 @@ namespace OperationalTransform.Tests
                 Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
             }
         }
-        [TestMethod]
+        [TestMethod][Ignore]
         public void OperationTransformer_Transform_IP3Satisfied()
         {
             var output = new List<(OperationBase op1, OperationBase op2, string message)>();
@@ -78,7 +77,7 @@ namespace OperationalTransform.Tests
             {
                 var op1 = opPair.op1;
                 var op2 = opPair.op2;
-
+                // TOOD: Create this in terms of document states?
                 var op1dash = OperationTransformer.Transform(op1, op2);
                 var op2dash = OperationTransformer.Transform(op2, op1);
                 var op1undo = op1.CreateInverse();
@@ -90,11 +89,9 @@ namespace OperationalTransform.Tests
                 {
                     if(op1undodash.GetType() != typeof(IdentityOperation) &&
                         op1dashundo.GetType() != typeof(IdentityOperation))
-                    { // TODO: Work out properly if it's ok to fail IP3 when identity operations are involved.
-                        /*output.Add((op1, op2,
+                    {
+                       output.Add((op1, op2,
                             $"{Environment.NewLine}IP3 failed with operations {op1.GetType().Name}({op1.Position}, '{op1.Text}') and {op2.GetType().Name}({op2.Position}, '{op2.Text}')"));
-                            */
-                        // TODO: Why does DeleteOperation(1, 'b') and InsertOperation(2, '2') fail
                     }
                 }
             }
