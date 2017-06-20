@@ -20,7 +20,7 @@ namespace OperationalTransform.Tests
             var opFuncs = new Func<DocumentState, int, char, OperationBase>[] {
                 (ds, pos, text) => new InsertOperation(ds, pos, text),
                 (ds, pos, text) => new DeleteOperation(ds, pos),
-                //(ds, pos, text) => new IdentityOperation(ds),
+                (ds, pos, text) => new IdentityOperation(ds),
             };
 
             var opIndexes = new[] { 1, 2, 3 };
@@ -69,7 +69,7 @@ namespace OperationalTransform.Tests
                 Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
             }
         }
-        [TestMethod]
+        [TestMethod][Ignore]
         public void OperationTransformer_Transform_IP3Satisfied()
         {
             // IP3 states that doing op1 then op2 then undoing op1 should be the same as doing op2 then op1 then undoing op1
