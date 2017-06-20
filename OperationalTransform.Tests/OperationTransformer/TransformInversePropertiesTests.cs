@@ -15,7 +15,7 @@ namespace OperationalTransform.Tests
     [TestClass]
     public class TransformInversePropertiesTests
     {
-        private IEnumerable<(OperationBase op1, OperationBase op2)> GetOperationPairs()
+        private IEnumerable<(DocumentState ds1, OperationBase op1, DocumentState ds2, OperationBase op2)> GetOperationPairs()
         {
             var opFuncs = new Func<DocumentState, int, char, OperationBase>[] {
                 (ds, pos, text) => new InsertOperation(ds, pos, text),
@@ -25,16 +25,16 @@ namespace OperationalTransform.Tests
 
             var opIndexes = new[] { 1, 2, 3 };
 
-            var state1 = new DocumentState(1, "abcd");
-            var state2 = new DocumentState(2, "abcd");
             foreach (var op1Pos in opIndexes)
             {
                 foreach (var opFunc in opFuncs)
                 {
                     foreach (var op2Func in opFuncs)
                     {
-                        yield return (opFunc(state1, op1Pos, state1.UserId.ToString()[0]),
-                                        op2Func(state2, 2, state2.UserId.ToString()[0]));
+                        var state1 = new DocumentState(1, "abcdef");
+                        var state2 = new DocumentState(2, "abcdef");
+                        yield return (state1, opFunc(state1, op1Pos, state1.UserId.ToString()[0]),
+                                        state2, op2Func(state2, 2, state2.UserId.ToString()[0]));
                     }
                 }
             }
@@ -55,7 +55,7 @@ namespace OperationalTransform.Tests
                 var opx = opPair.op1;
                 var op = opPair.op2;
 
-                OperationBase opUndo = op.CreateInverse();
+                OperationBase opUndo = op.CreateInverse(opPair.ds2);
                 if (!opx.IdenticalOperation(OperationTransformer.Transform(opx, OperationTransformer.Transform(op, opUndo))))
                 {
                     output.Add((opx, op,
@@ -69,30 +69,40 @@ namespace OperationalTransform.Tests
                 Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
             }
         }
-        [TestMethod][Ignore]
+        [TestMethod]
         public void OperationTransformer_Transform_IP3Satisfied()
         {
+            // IP3 states that doing op1 then op2 then undoing op1 should be the same as doing op2 then op1 then undoing op1
+
             var output = new List<(OperationBase op1, OperationBase op2, string message)>();
             foreach(var opPair in GetOperationPairs())
             {
+                var localState = opPair.ds1;
+                var remoteState = opPair.ds2;
                 var op1 = opPair.op1;
                 var op2 = opPair.op2;
-                // TOOD: Create this in terms of document states?
-                var op1dash = OperationTransformer.Transform(op1, op2);
-                var op2dash = OperationTransformer.Transform(op2, op1);
-                var op1undo = op1.CreateInverse();
+                var op1undo = op1.CreateInverse(localState);
 
-                var op1undodash = OperationTransformer.Transform(op1undo, op2dash);
-                var op1dashundo = op1dash.CreateInverse();
-
-                if (!op1undodash.IdenticalOperation(op1dashundo))
+                try
                 {
-                    if(op1undodash.GetType() != typeof(IdentityOperation) &&
-                        op1dashundo.GetType() != typeof(IdentityOperation))
-                    {
-                       output.Add((op1, op2,
-                            $"{Environment.NewLine}IP3 failed with operations {op1.GetType().Name}({op1.Position}, '{op1.Text}') and {op2.GetType().Name}({op2.Position}, '{op2.Text}')"));
-                    }
+                    localState.ApplyTransform(new AppliedOperation(op1));
+                    localState.ApplyTransform(new AppliedOperation(op2));
+                    localState.ApplyTransform(new AppliedOperation(op1undo, new[] { op1.Id }));
+
+                    remoteState.ApplyTransform(new AppliedOperation(op2));
+                    remoteState.ApplyTransform(new AppliedOperation(op1));
+                    remoteState.ApplyTransform(new AppliedOperation(op1undo, new[] { op1.Id }));
+                }
+                catch
+                {
+                    output.Add((op1, op2,
+                        $"{Environment.NewLine}IP3 crashed with operations {op1.GetType().Name}({op1.Position}, '{op1.Text}') and {op2.GetType().Name}({op2.Position}, '{op2.Text}')"));
+                }
+
+                if (remoteState.CurrentState != localState.CurrentState)
+                {
+                    output.Add((op1, op2,
+                        $"{Environment.NewLine}IP3 failed with operations {op1.GetType().Name}({op1.Position}, '{op1.Text}') and {op2.GetType().Name}({op2.Position}, '{op2.Text}') local: {localState.CurrentState}, remote: {remoteState.CurrentState}"));
                 }
             }
 
@@ -100,6 +110,8 @@ namespace OperationalTransform.Tests
             {
                 Assert.Fail(string.Join(string.Empty, output.Select(o => o.message)));
             }
+
+            Assert.IsTrue(output.Count == 0);
         }
     }
 }

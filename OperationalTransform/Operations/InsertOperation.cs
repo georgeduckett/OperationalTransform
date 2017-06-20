@@ -20,9 +20,9 @@ namespace OperationalTransform.Operations
         {
             return state.Substring(0, Position) + Text + state.Substring(Position);
         }
-        public override OperationBase CreateInverse()
+        public override OperationBase CreateInverse(DocumentState documentState)
         {
-            return new DeleteOperation(UserId, SequenceId, Position, Text);
+            return new DeleteOperation(UserId, documentState.GetNextSequenceId(), Position, Text);
         }
         public override OperationBase NewWithPosition(int newPosition)
         {

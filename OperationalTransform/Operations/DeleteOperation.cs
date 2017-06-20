@@ -21,9 +21,9 @@ namespace OperationalTransform.Operations
         /// <param name="siteState"></param>
         /// <param name="position"></param>
         public DeleteOperation(DocumentState siteState, int position) : base(siteState, position, siteState.CurrentState[position]) { }
-        public override OperationBase CreateInverse()
+        public override OperationBase CreateInverse(DocumentState documentState)
         {
-            return new InsertOperation(UserId, SequenceId, Position, Text);
+            return new InsertOperation(documentState, Position, Text);
         }
         public override OperationBase NewWithPosition(int newPosition)
         {

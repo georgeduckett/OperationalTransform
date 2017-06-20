@@ -19,7 +19,7 @@ namespace OperationalTransform.Tests
         {
             var state = new DocumentState(1, "123456789");
             var insert = new InsertOperation(state, 2, 'x');
-            Assert.IsInstanceOfType(insert.CreateInverse(), typeof(DeleteOperation));
+            Assert.IsInstanceOfType(insert.CreateInverse(state), typeof(DeleteOperation));
         }
         [TestMethod]
         public void InsertOperation_CreateInverse_InverseUndoesInsert()
@@ -27,7 +27,7 @@ namespace OperationalTransform.Tests
             var state = new DocumentState(1, "123456789");
             var insert = new InsertOperation(state, 2, 'x');
             var insertedstate = insert.ApplyTransform(state.CurrentState);
-            Assert.AreEqual(state.CurrentState, insert.CreateInverse().ApplyTransform(insertedstate));
+            Assert.AreEqual(state.CurrentState, insert.CreateInverse(state).ApplyTransform(insertedstate));
         }
     }
 }

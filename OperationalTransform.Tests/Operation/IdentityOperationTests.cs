@@ -19,7 +19,7 @@ namespace OperationalTransform.Tests
         public void IdentityOperation_CreateInverse_InverseMaintainsState()
         {
             var state = new DocumentState(1, "123456789");
-            Assert.AreEqual(state.CurrentState, new IdentityOperation(state).CreateInverse().ApplyTransform(state.CurrentState));
+            Assert.AreEqual(state.CurrentState, new IdentityOperation(state).CreateInverse(state).ApplyTransform(state.CurrentState));
         }
     }
 }

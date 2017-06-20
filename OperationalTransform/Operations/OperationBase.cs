@@ -29,7 +29,7 @@ namespace OperationalTransform.Operations
         public OperationBase(DocumentState siteState, int position, char text) : this(siteState.UserId, siteState.GetNextSequenceId(), position, text) { }
         public abstract OperationBase NewWithPosition(int newPosition);
         public int Length => 1;
-        public abstract OperationBase CreateInverse();
+        public abstract OperationBase CreateInverse(DocumentState documentState);
         public abstract string ApplyTransform(string state);
 
         public bool IdenticalOperation(OperationBase other)

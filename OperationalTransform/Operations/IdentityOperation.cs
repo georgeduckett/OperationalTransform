@@ -17,7 +17,7 @@ namespace OperationalTransform.Operations
         internal IdentityOperation(uint userId, uint sequenceId) : base(userId, sequenceId, 0, (char)0) { }
         public IdentityOperation(DocumentState siteState) : base(siteState, 0, (char)0) { }
         public override string ApplyTransform(string state) => state;
-        public override OperationBase CreateInverse() => this;
+        public override OperationBase CreateInverse(DocumentState documentState) => new IdentityOperation(documentState);
         public override OperationBase NewWithPosition(int newPosition) => new IdentityOperation(UserId, SequenceId);
         public override string ToString()
         {

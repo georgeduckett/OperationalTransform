@@ -25,7 +25,7 @@ namespace OperationalTransform.Tests
         {
             var state = new DocumentState(1, "1234");
             var delete = new DeleteOperation(state, 2);
-            Assert.IsInstanceOfType(delete.CreateInverse(), typeof(InsertOperation));
+            Assert.IsInstanceOfType(delete.CreateInverse(state), typeof(InsertOperation));
         }
         [TestMethod]
         public void DeleteOperation_CreateInverse_InverseUndoesDelete()
@@ -33,7 +33,7 @@ namespace OperationalTransform.Tests
             var state = new DocumentState(1, "1234");
             var delete = new DeleteOperation(state, 2);
             var deletedstate = delete.ApplyTransform(state.CurrentState);
-            Assert.AreEqual(state.CurrentState, delete.CreateInverse().ApplyTransform(deletedstate));
+            Assert.AreEqual(state.CurrentState, delete.CreateInverse(state).ApplyTransform(deletedstate));
         }
     }
 }
