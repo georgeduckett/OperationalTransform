@@ -87,6 +87,27 @@ namespace Client
             SocketClient.Close();
             base.OnClosed(e);
         }
+        private void UndoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            
+            e.Handled = true;
+        }
+
+        private void UndoCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+            e.Handled = true;
+        }
+        private void RedoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void RedoCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = false;
+            e.Handled = true;
+        }
         private void txtDocument_TextChanged(object sender, TextChangedEventArgs e)
         {
             foreach(var change in e.Changes)
