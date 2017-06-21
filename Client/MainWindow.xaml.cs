@@ -63,12 +63,12 @@ namespace Client
             {
                 Dispatcher.Invoke(() =>
                 {
-                    txtDocument.TextChanged -= Document_TextChanged;
+                    var caretIndex = txtDocument.CaretIndex;
 
                     AppliedOperation appliedOperation = ProtoBuf.Serializer.Deserialize<AppliedOperation>(ms);
                     try
                     {
-                        DocumentState.ApplyTransform(appliedOperation);
+                        DocumentState.ApplyTransform(appliedOperation, ref caretIndex);
                     }
                     catch (Exception)
                     {
@@ -76,8 +76,10 @@ namespace Client
                         throw;
                     }
 
-                    txtDocument.Text = DocumentState.CurrentState; // TODO: Handle translating the cursor if needed
+                    txtDocument.TextChanged -= Document_TextChanged;
+                    txtDocument.Text = DocumentState.CurrentState;
                     txtDocument.TextChanged += Document_TextChanged;
+                    txtDocument.CaretIndex = caretIndex;
                 });
             }
         }
@@ -99,26 +101,20 @@ namespace Client
         }
         private void UndoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            var undoOp = DocumentState.Undo();
-            UpdateDocumentText();
-            txtDocument.CaretIndex = undoOp.Operation.Position;
-            if(undoOp.Operation is InsertOperation)
-            {
-                txtDocument.CaretIndex += undoOp.Operation.Length;
-            }
+            var caretIndex = txtDocument.CaretIndex;
+            var undoOp = DocumentState.Undo(ref caretIndex);
+            UpdateDocumentTextFromState();
+            txtDocument.CaretIndex = caretIndex;
             SendOperation(undoOp);
 
             e.Handled = true;
         }
         private void RedoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            var redoOp = DocumentState.Redo();
-            UpdateDocumentText();
-            txtDocument.CaretIndex = redoOp.Operation.Position;
-            if (redoOp.Operation is InsertOperation)
-            {
-                txtDocument.CaretIndex += redoOp.Operation.Length;
-            }
+            var caretIndex = txtDocument.CaretIndex;
+            var redoOp = DocumentState.Redo(ref caretIndex);
+            UpdateDocumentTextFromState();
+            txtDocument.CaretIndex = caretIndex;
             SendOperation(redoOp);
             e.Handled = true;
         }
@@ -126,30 +122,21 @@ namespace Client
         {
             ApplyAndSendChanges((TextBox)sender, e.Changes);
 
-            UpdateDocumentText();
+            UpdateDocumentTextFromState();
         }
-        private void UpdateDocumentText()
+        private void UpdateDocumentTextFromState()
         {
             txtDocument.TextChanged -= Document_TextChanged;
 
             OldText = txtDocument.Text;
-            var oldCaretIndex = txtDocument.CaretIndex;
             txtDocument.Text = DocumentState.CurrentState; // Apply local changes via the document state
-
-            if(oldCaretIndex > txtDocument.Text.Length)
-            {
-                txtDocument.CaretIndex = txtDocument.Text.Length;
-            }
-            else
-            {
-                txtDocument.CaretIndex = oldCaretIndex;
-            }
 
             txtDocument.TextChanged += Document_TextChanged;
         }
 
         private void ApplyAndSendChanges(TextBox sender, ICollection<TextChange> textChanges)
         {
+            var caretIndex = txtDocument.CaretIndex;
             foreach (var change in textChanges)
             {
                 AppliedOperation appliedOperation = null;
@@ -161,7 +148,7 @@ namespace Client
                     foreach (var c in addedString)
                     {
                         appliedOperation = new AppliedOperation(new InsertOperation(DocumentState, changeCharOffset++, c), DocumentState);
-                        DocumentState.ApplyTransform(appliedOperation);
+                        DocumentState.ApplyTransform(appliedOperation, ref caretIndex);
                         SendOperation(appliedOperation);
                     }
                 }
@@ -171,11 +158,12 @@ namespace Client
                     foreach (var c in removedString)
                     {
                         appliedOperation = new AppliedOperation(new DeleteOperation(DocumentState, change.Offset), DocumentState);
-                        DocumentState.ApplyTransform(appliedOperation);
+                        DocumentState.ApplyTransform(appliedOperation, ref caretIndex);
                         SendOperation(appliedOperation);
                     }
                 }
             }
+            txtDocument.CaretIndex = caretIndex;
         }
 
         private void SendOperation(AppliedOperation appliedOperation)

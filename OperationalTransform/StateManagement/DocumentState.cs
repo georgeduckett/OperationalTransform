@@ -50,12 +50,13 @@ namespace OperationalTransform.StateManagement
         {
             return _NextSequenceId++;
         }
-
         /// <summary>
         /// Applies an operation based on another site document (defined by a list of ids of operations that were applied prior to this one)
+        /// and adjusts the supplied caret index as appropriate
         /// </summary>
         /// <param name="appliedOperation"></param>
-        public void ApplyTransform(AppliedOperation appliedOperation)
+        /// <param name="caretIndex"></param>
+        public void ApplyTransform(AppliedOperation appliedOperation, ref int caretIndex)
         {
             var missingRemoteTransformIds = _AppliedOperationsOrder.Except(appliedOperation.PriorStateTransformIds);
 
@@ -67,6 +68,29 @@ namespace OperationalTransform.StateManagement
             }
 
             TransformState(operation);
+
+            if(operation.Position < caretIndex)
+            {
+                if(operation is InsertOperation)
+                {
+                    caretIndex += operation.Length;
+                    caretIndex = Math.Min(caretIndex, CurrentState.Length);
+                }
+                else if (operation is DeleteOperation)
+                {
+                    caretIndex -= operation.Length;
+                    caretIndex = Math.Max(caretIndex, 0);
+                }
+            }
+        }
+        /// <summary>
+        /// Applies an operation based on another site document (defined by a list of ids of operations that were applied prior to this one)
+        /// </summary>
+        /// <param name="appliedOperation"></param>
+        internal void ApplyTransform(AppliedOperation appliedOperation)
+        {
+            var caretIndex = 0;
+            ApplyTransform(appliedOperation, ref caretIndex);
         }
         /// <summary>
         /// Transforms the document state and records the applied operation
@@ -97,18 +121,18 @@ namespace OperationalTransform.StateManagement
         /// <summary>
         /// Undo the last transaction
         /// </summary>
-        public AppliedOperation Undo()
+        public AppliedOperation Undo(ref int caretIndex)
         {
             var lastOp = _AppliedOperationsOrder.Select(id => _AppliedOperations[id]).Last(ao => ao.UserId == UserId);
 
             AppliedOperation undoOperation = new AppliedOperation(lastOp.CreateInverse(this), this);
-            ApplyTransform(undoOperation);
+            ApplyTransform(undoOperation, ref caretIndex);
             return undoOperation;
         }
         /// <summary>
         /// Redo the last transaction
         /// </summary>
-        public AppliedOperation Redo()
+        public AppliedOperation Redo(ref int caretIndex)
         {
             throw new NotImplementedException();
         }

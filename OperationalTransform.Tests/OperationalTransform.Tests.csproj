@@ -51,6 +51,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DocumentState\DocumentStateCtorTests.cs" />
+    <Compile Include="DocumentState\ApplyTransformCaretTests.cs" />
     <Compile Include="OperationTransformer\TransformInversePropertiesTests.cs" />
     <Compile Include="OperationTransformer\TransformConvergencePropertiesTests.cs" />
     <Compile Include="OperationTransformer\TransformDeleteInsertTests.cs" />
