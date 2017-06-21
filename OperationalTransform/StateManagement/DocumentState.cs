@@ -78,7 +78,40 @@ namespace OperationalTransform.StateManagement
             _AppliedOperations.Add(operation.Id, operation);
             _AppliedOperationsOrder.Add(operation.Id);
         }
+        /// <summary>
+        /// Whether we are able to perform an undo
+        /// </summary>
+        /// <returns></returns>
+        public bool CanUndo()
+        {
+            return _AppliedOperations.Count != 0;
+        }
+        /// <summary>
+        /// Whether we're able to perform a redo
+        /// </summary>
+        /// <returns></returns>
+        public bool CanRedo()
+        {
+            return false;
+        }
+        /// <summary>
+        /// Undo the last transaction
+        /// </summary>
+        public AppliedOperation Undo()
+        {
+            var lastOp = _AppliedOperationsOrder.Select(id => _AppliedOperations[id]).Last(ao => ao.UserId == UserId);
 
+            AppliedOperation undoOperation = new AppliedOperation(lastOp.CreateInverse(this), this);
+            ApplyTransform(undoOperation);
+            return undoOperation;
+        }
+        /// <summary>
+        /// Redo the last transaction
+        /// </summary>
+        public AppliedOperation Redo()
+        {
+            throw new NotImplementedException();
+        }
         public override string ToString()
         {
             return $"UserId: {UserId}, Applied Operations: {_AppliedOperations.Count}, Content:{(CurrentState.Length > 50 ? CurrentState.Substring(0, 50) + "..." : CurrentState)}";

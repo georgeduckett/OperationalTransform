@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <TextBox x:Name="txtDocument" Margin="10" AcceptsTab="True" AcceptsReturn="True" TextChanged="txtDocument_TextChanged" IsUndoEnabled="True" UndoLimit="1">
+        <TextBox x:Name="txtDocument" Margin="10" AcceptsTab="True" AcceptsReturn="True" TextChanged="Document_TextChanged" IsUndoEnabled="True" UndoLimit="1">
             <TextBox.CommandBindings>
                 <CommandBinding Command="ApplicationCommands.Undo" Executed="UndoCmdExecuted" CanExecute="UndoCmdCanExecute"/>
                 <CommandBinding Command="ApplicationCommands.Redo" Executed="RedoCmdExecuted" CanExecute="RedoCmdCanExecute"/>

@@ -63,7 +63,7 @@ namespace Client
             {
                 Dispatcher.Invoke(() =>
                 {
-                    txtDocument.TextChanged -= txtDocument_TextChanged;
+                    txtDocument.TextChanged -= Document_TextChanged;
 
                     AppliedOperation appliedOperation = ProtoBuf.Serializer.Deserialize<AppliedOperation>(ms);
                     try
@@ -77,7 +77,7 @@ namespace Client
                     }
 
                     txtDocument.Text = DocumentState.CurrentState; // TODO: Handle translating the cursor if needed
-                    txtDocument.TextChanged += txtDocument_TextChanged;
+                    txtDocument.TextChanged += Document_TextChanged;
                 });
             }
         }
@@ -87,71 +87,104 @@ namespace Client
             SocketClient.Close();
             base.OnClosed(e);
         }
-        private void UndoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            
-            e.Handled = true;
-        }
-
         private void UndoCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = true;
+            e.CanExecute = DocumentState.CanUndo();
+            e.Handled = true;
+        }
+        private void RedoCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = DocumentState.CanRedo();
+            e.Handled = true;
+        }
+        private void UndoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            var undoOp = DocumentState.Undo();
+            UpdateDocumentText();
+            txtDocument.CaretIndex = undoOp.Operation.Position;
+            if(undoOp.Operation is InsertOperation)
+            {
+                txtDocument.CaretIndex += undoOp.Operation.Length;
+            }
+            SendOperation(undoOp);
+
             e.Handled = true;
         }
         private void RedoCmdExecuted(object sender, ExecutedRoutedEventArgs e)
         {
+            var redoOp = DocumentState.Redo();
+            UpdateDocumentText();
+            txtDocument.CaretIndex = redoOp.Operation.Position;
+            if (redoOp.Operation is InsertOperation)
+            {
+                txtDocument.CaretIndex += redoOp.Operation.Length;
+            }
+            SendOperation(redoOp);
             e.Handled = true;
+        }
+        private void Document_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ApplyAndSendChanges((TextBox)sender, e.Changes);
+
+            UpdateDocumentText();
+        }
+        private void UpdateDocumentText()
+        {
+            txtDocument.TextChanged -= Document_TextChanged;
+
+            OldText = txtDocument.Text;
+            var oldCaretIndex = txtDocument.CaretIndex;
+            txtDocument.Text = DocumentState.CurrentState; // Apply local changes via the document state
+
+            if(oldCaretIndex > txtDocument.Text.Length)
+            {
+                txtDocument.CaretIndex = txtDocument.Text.Length;
+            }
+            else
+            {
+                txtDocument.CaretIndex = oldCaretIndex;
+            }
+
+            txtDocument.TextChanged += Document_TextChanged;
         }
 
-        private void RedoCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        private void ApplyAndSendChanges(TextBox sender, ICollection<TextChange> textChanges)
         {
-            e.CanExecute = false;
-            e.Handled = true;
-        }
-        private void txtDocument_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            foreach(var change in e.Changes)
+            foreach (var change in textChanges)
             {
                 AppliedOperation appliedOperation = null;
 
                 if (change.AddedLength != 0)
                 {
-                    var addedString = ((TextBox)sender).Text.Substring(change.Offset, change.AddedLength);
+                    var addedString = (sender).Text.Substring(change.Offset, change.AddedLength);
                     var changeCharOffset = change.Offset;
                     foreach (var c in addedString)
                     {
                         appliedOperation = new AppliedOperation(new InsertOperation(DocumentState, changeCharOffset++, c), DocumentState);
                         DocumentState.ApplyTransform(appliedOperation);
-                        using (var ms = new MemoryStream())
-                        {
-                            ProtoBuf.Serializer.Serialize(ms, appliedOperation);
-                            Task.Delay(10000).ContinueWith(t => SocketClient.Send(ms.ToArray()));
-                        }
+                        SendOperation(appliedOperation);
                     }
                 }
                 else
                 {
-                    var removedString = ((TextBox)sender).Text.Substring(change.Offset, change.RemovedLength);
+                    var removedString = (sender).Text.Substring(change.Offset, change.RemovedLength);
                     foreach (var c in removedString)
                     {
                         appliedOperation = new AppliedOperation(new DeleteOperation(DocumentState, change.Offset), DocumentState);
                         DocumentState.ApplyTransform(appliedOperation);
-                        using (var ms = new MemoryStream())
-                        {
-                            ProtoBuf.Serializer.Serialize(ms, appliedOperation);
-                            Task.Delay(10000).ContinueWith(t => SocketClient.Send(ms.ToArray()));
-                        }
+                        SendOperation(appliedOperation);
                     }
                 }
-
             }
+        }
 
-            txtDocument.TextChanged -= txtDocument_TextChanged;
-
-            OldText = txtDocument.Text;
-            txtDocument.Text = DocumentState.CurrentState; // Apply local changes via the document state
-
-            txtDocument.TextChanged += txtDocument_TextChanged;
+        private void SendOperation(AppliedOperation appliedOperation)
+        {
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, appliedOperation);
+                Task.Delay(10000).ContinueWith(t => SocketClient.Send(ms.ToArray()));
+            }
         }
     }
 }
